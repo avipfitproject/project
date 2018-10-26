@@ -1,0 +1,197 @@
+--Comando para criação de tabelas no banco de dados:
+--Criação da tabela "pessoa".
+create table pessoa (
+    cpf varchar(12) not null,
+    dataNascimento date not null,
+    email varchar(30) not null,
+    endereco varchar(70) not null,
+    nome varchar(40) not null,
+    senha varchar(8) not null,
+    telefone varchar(13) not null,
+	   foto blob,
+    TipoPessoa varchar(15) not null check (TipoPessoa = 'Cliente' or TipoPessoa 
+= 'Funcionario', TipoPessoa = 'Analista'),
+    primary key (cpf)
+);
+--Criação da tabela "filial".
+create table filial (
+    IdFilial serial not null,
+    endereco varchar(70) not null,
+    telefone varchar(13) not null,
+    primary key (IdFilial)
+);
+--Criação da tabela "cliente".
+create table cliente (
+    cpf varchar(12) not null,
+    DiaDaSemana varchar(15) not null,
+    IdFilial serial not null,
+    horario time not null,
+    primary key (cpf),
+    foreign key (IdFilial) references filial(IdFilial),
+    foreign key (cpf) references pessoa(cpf),
+);
+--Criação da tabela "mensalidade".
+create table mensalidade (
+    cpf varchar(12) not null,
+    valor float not null,
+    DataVencimento date not null,
+    status varchar(25) not null check (status = 'Em débito' or status = 'Pagamento efetuado'),
+    primary key (cpf),
+    foreign key (cpf) references cliente(cpf)
+);
+--Criação da tabela "funcionario".
+create table funcionario (
+    cpf varchar(12) not null,
+    IdFilial serial not null,
+    funcao varchar(15) not null check (funcao = 'Professor' or funcao = 'Recepcionista'),
+    salario decimal (6,2) not null,
+    primary key (cpf),
+    foreign key (cpf) references pessoa(cpf),
+    foreign key (IdFilial) references filial(IdFilial)
+);
+--Criação da tabela "parceiro".
+create table parceiro (
+    cnpj varchar(20) not null,
+    email varchar(30) not null,
+    endereco varchar(70) not null,
+    nome varchar(40) not null,
+    telefone varchar(13) not null,
+   imagem blob, 
+    primary key (cnpj)
+);
+--Criação da tabela "treinamento".
+create table treinamento (
+    NomeTreinamento varchar(20) not null,
+    primary key (NomeTreinamento)
+);
+--Criação da tabela "exercicio".
+create table exercicio (
+    NomeExercicio varchar(20) not null,
+    descricao varchar(100) not null,
+    link varchar(100),
+    primary key (NomeExercicio)
+);
+--Criação da tabela "executa".
+create table executa (
+    cpf varchar(12) not null,
+    NomeTreinamento varchar(20) not null,
+    primary key (cpf, NomeTreinamento),
+    foreign key (cpf) references cliente),
+    foreign key (NomeTreinamento) references treinamento(NomeTreinamento)
+);
+--Criação da tabela "contem".
+create table contem (
+    NomeExercicio varchar(20) not null,
+    NomeTreinamento varchar(20) not null,
+    primary key (NomeExercicio, NomeTreinamento),
+    foreign key (NomeExercicio) references exercicio(NomeExercicio),
+    foreign key (NomeTreinamento) references treinamento(NomeTreinamento)
+);
+--Criação da tabela "avalFisica".
+create table avalFisica (
+    cpf varchar(12) not null,
+    altura decimal(3,2) not null check (altura <= 2.10 and altura >= 1.50),
+    data date not null,
+    peso decimal(5,2) not null check (peso <= 160 and peso >= 35 ),
+    biceps float not null,
+    cintura float not null,
+    coxa float not null,
+    pressaoArt float not null,
+    gordura float not null,
+    triceps float not null,
+    primary key (cpf),
+    foreign key (cpf) references cliente
+); 
+	--Criação da tabela "depoimentos".
+create table depoimentos (
+    cpf varchar(12) not null,
+    descricao varchar(250) not null,
+    status varchar(25) not null check(status = 'Aprovado' or status = 'Rejeitado'),
+    primary key (cpf),
+    foreign key (cpf) references cliente
+); 
+--Criação da tabela "agendamento".
+create table agendamento (
+    data date not null,
+    descricaoCancelamento varchar(90) not null,
+    status varchar(25) not null check (status = 'Aguardando' or status = 'Aprovado' or status = 'Rejeitado'),
+    horario time not null,
+	   professor varchar(12) not null,
+    primary key (data, horario)
+    foreign key (professor) references funcionario(cpf)
+); 
+--Criação da tabela "agendamentoAvalFisica".
+create table agendamentoAvalFisicaMensal (
+    data date not null,
+    cpf varchar(12) not null,
+    horario time not null,
+    primary key (data, horario),
+    foreign key (cpf) references cliente(cpf),
+    foreign key (data, horario) references agendamento(data, horario)
+); 
+--Criação da tabela "agendamentoAulaExp".
+create table agendamentoAulaExp (
+    data date not null,
+    email varchar(30) not null unique,
+    IdFilial serial not null,
+    modalidadeTreinamento varchar(20),
+    nome varchar(40) not null,
+    telefone varchar(13) not null,
+    horario time not null,
+    primary key (data, horario, Idfilial),
+	   foreign key (Idfilial) references filial(Idfilial),
+    foreign key (data, horario) references agendamento(data, horario)
+); 
+--Criação da tabela "relatorio".
+create table relatorio(
+    cpf varchar(12) not null,
+    IdFilial serial not null,
+    NomeTreinamento varchar(20) not null,
+	   primary key (cpf),
+    foreign key (cpf) references cliente(cpf),
+    foreign key (treinamento) references treinamento(NomeTreinamento),
+    foreign key (IdFilial) references filial(IdFilial),
+);
+--Criação da tabela "ticket".
+create table ticket(
+    cpf varchar(12) not null,
+    idTicket serial not null,
+   classificacao varchar(30) null, check (classificacao = 'Incidente’ or classificacao = 'Melhoria’ or classificacao = 'Dúvida’),
+    prioridade varchar(30) not null, check (prioridade = 'Alta’ or prioridade = 'Média’ or prioridade = 'Baixa’),
+    descricao varchar(1000) not null,
+    titulo varchar(80) not null,
+    responsavel varchar(12) not null,
+    status varchar(10) not null check (status = "Aberto" or status = "Em Progresso" or status = "Em Revisão" or status = "Fechado"),
+    anexo longblob null,
+    primary key (id),
+    foreign key (cpf) references cliente(cpf),
+    foreign key (responsavel) references analista(cpf),
+);
+--Criação da tabela "analista".
+create table analista(
+    cpf varchar(12) not null,
+    salario decimal (6,2) not null,
+    primary key (cpf),
+    foreign key (cpf) references pessoa(cpf),
+);
+--Criação da tabela "manuais".
+create table manuais(
+    arquivo longblob not null,
+    IdManual serial not null,
+    nome varchar(80) not null,
+    primary key (IdManual)
+);
+--Comando para consulta simultânea de registros em várias tabelas - inner join:
+select nome, c.cpf, NomeTreinamento, valor, DataVencimento
+from pessoa p inner join cliente c on p.cpf = c.cpf inner join executa e	on c.cpf = e.cpf inner join mensalidade m on c.cpf = m.cpf ;
+	--A consulta acima retorna os campos "nome", "cpf", "NomeTreinamento", "valor" e "DataVencimento". Coluna relacionada entre as tabelas: a foreign key comum para as tabelas "cliente" e "pessoa" é "cpf"; a foreign key comum para "cliente" "executa" é "cpf" e a foreign key comum para "cliente" e "mensalidade" é "cpf".
+--Comando para criação de uma view:
+CREATE VIEW info_funcionarios AS
+SELECT nome, p.cpf, endereco, telefone, email, IdFilial, funcao
+FROM pessoa p INNER JOIN funcionario c ON p.cpf = c.cpf
+ORDER BY nome ASC;
+--A view acima retorna nome de funcionários, cpf, endereço, telefone, e-mail, filial de trabalho e função, restringindo a informação de salários. 
+--Comando para subconsulta:
+select Resultado.mensalidade, Count(Resultado.cliente) as Total_clientes
+from (Select ms.valor as Mensalidade, p.nome as cliente from pessoa as p inner join cliente as cl on p.cpf = cl.cpf inner join mensalidade as ms on ms.cpf = cl.cpf) as Resultado group by Resultado.mensalidade;
+--A subconsulta acima retorna os valores de mensalidades e a quantidade de alunos que efetuam o pagamento a cada um destes valores.
