@@ -56,7 +56,7 @@ create table parceiro (
     endereco varchar(70) not null,
     nome varchar(40) not null,
     telefone varchar(13) not null,
-   imagem blob, 
+    imagem blob, 
     primary key (cnpj)
 );
 --Criação da tabela "treinamento".
@@ -156,23 +156,14 @@ create table relatorio(
 create table ticket(
     cpf varchar(12) not null,
     idTicket serial not null,
-   classificacao varchar(30) null, check (classificacao = 'Incidente’ or classificacao = 'Melhoria’ or classificacao = 'Dúvida’),
+   classificacao varchar(30) null, check (classificacao = 'Incidente’ or classificacao = 'Solicitação’),
     prioridade varchar(30) not null, check (prioridade = 'Alta’ or prioridade = 'Média’ or prioridade = 'Baixa’),
     descricao varchar(1000) not null,
     titulo varchar(80) not null,
-    responsavel varchar(12) not null,
     status varchar(10) not null check (status = "Aberto" or status = "Em Progresso" or status = "Em Revisão" or status = "Fechado"),
     anexo longblob null,
     primary key (id),
     foreign key (cpf) references cliente(cpf),
-    foreign key (responsavel) references analista(cpf),
-);
---Criação da tabela "analista".
-create table analista(
-    cpf varchar(12) not null,
-    salario decimal (6,2) not null,
-    primary key (cpf),
-    foreign key (cpf) references pessoa(cpf),
 );
 --Criação da tabela "manuais".
 create table manuais(
