@@ -10,7 +10,7 @@ create table pessoa (
     telefone varchar(13) not null,
 	   foto blob,
     TipoPessoa varchar(15) not null check (TipoPessoa = 'Cliente' or TipoPessoa 
-= 'Funcionario', TipoPessoa = 'Analista'),
+= 'Funcionario'),
     primary key (cpf)
 );
 --Criação da tabela "filial".
@@ -34,7 +34,7 @@ create table cliente (
 create table mensalidade (
     cpf varchar(12) not null,
     valor float not null,
-    DataVencimento date not null,
+    DataPagamento date not null,
     status varchar(25) not null check (status = 'Em débito' or status = 'Pagamento efetuado'),
     primary key (cpf),
     foreign key (cpf) references cliente(cpf)
@@ -106,7 +106,7 @@ create table avalFisica (
 create table depoimentos (
     cpf varchar(12) not null,
     descricao varchar(250) not null,
-    status varchar(25) not null check(status = 'Aprovado' or status = 'Rejeitado'),
+    status varchar(25) not null check(status = 'Aprovado' or status = 'Cancelado'),
     primary key (cpf),
     foreign key (cpf) references cliente
 ); 
@@ -114,7 +114,7 @@ create table depoimentos (
 create table agendamento (
     data date not null,
     descricaoCancelamento varchar(90) not null,
-    status varchar(25) not null check (status = 'Aguardando' or status = 'Aprovado' or status = 'Rejeitado'),
+    status varchar(25) not null check (status = 'Aguardando' or status = 'Aprovado' or status = 'Cancelado'),
     horario time not null,
 	   professor varchar(12) not null,
     primary key (data, horario)
@@ -156,8 +156,8 @@ create table relatorio(
 create table ticket(
     cpf varchar(12) not null,
     idTicket serial not null,
-   classificacao varchar(30) null, check (classificacao = 'Incidente’ or classificacao = 'Solicitação’),
-    prioridade varchar(30) not null, check (prioridade = 'Alta’ or prioridade = 'Média’ or prioridade = 'Baixa’),
+    classificacao varchar(30) null, check (classificacao = 'Incidente’ or classificacao = 'Solicitacao’),
+    prioridade varchar(30) not null, check (prioridade = 'Alta’ or prioridade = 'Media’ or prioridade = 'Baixa’),
     descricao varchar(1000) not null,
     titulo varchar(80) not null,
     status varchar(10) not null check (status = "Aberto" or status = "Em Progresso" or status = "Em Revisão" or status = "Fechado"),
@@ -173,9 +173,9 @@ create table manuais(
     primary key (IdManual)
 );
 --Comando para consulta simultânea de registros em várias tabelas - inner join:
-select nome, c.cpf, NomeTreinamento, valor, DataVencimento
+select nome, c.cpf, NomeTreinamento, valor, DataPagamento
 from pessoa p inner join cliente c on p.cpf = c.cpf inner join executa e	on c.cpf = e.cpf inner join mensalidade m on c.cpf = m.cpf ;
-	--A consulta acima retorna os campos "nome", "cpf", "NomeTreinamento", "valor" e "DataVencimento". Coluna relacionada entre as tabelas: a foreign key comum para as tabelas "cliente" e "pessoa" é "cpf"; a foreign key comum para "cliente" "executa" é "cpf" e a foreign key comum para "cliente" e "mensalidade" é "cpf".
+	--A consulta acima retorna os campos "nome", "cpf", "NomeTreinamento", "valor" e "DataPagamento". Coluna relacionada entre as tabelas: a foreign key comum para as tabelas "cliente" e "pessoa" é "cpf"; a foreign key comum para "cliente" "executa" é "cpf" e a foreign key comum para "cliente" e "mensalidade" é "cpf".
 --Comando para criação de uma view:
 CREATE VIEW info_funcionarios AS
 SELECT nome, p.cpf, endereco, telefone, email, IdFilial, funcao
